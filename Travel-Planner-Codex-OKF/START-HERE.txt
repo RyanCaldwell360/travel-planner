@@ -1,0 +1,11 @@
+Build the app described in Travel-Planner-Codex-OKF/.
+
+First read its README.md, AGENTS.md, product/vision.md, product/requirements.md, product/decisions.md, domain/pto.md, domain/tradeoffs.md, and quality/acceptance.md. Use index.md to find other relevant context. Inspect the repository and its instructions before selecting a stack.
+
+This is a laptop-first private shared travel planner for Ryan and Lily. Start with the year-planning loop: separate per-person PTO forecasts, individual travel/remote-work/PTO days, protected commitments, non-trip leave, explicit multi-trip tradeoffs, named alternatives, and real shared server persistence accessible from both laptops. Make the experience visually inviting using maps, destination photography, and travel-journal warmth. Add source-backed MSP flight/lodging estimates and weather context through replaceable adapters.
+
+Confirmed needs take precedence over proposed architecture. Do not repeat the discovery interview. Collect exact employer balances, pay schedules, holiday calendars, and dates in setup; they are not known facts. Never hardcode tentative five-week/40-hour-rollover assumptions or invent trip bookings. The next planning year is likely 2027 but must be selectable.
+
+Use deterministic, tested PTO calculations. Test every future balance, not just the year end. Do not transfer PTO between people, use later cuts to fix earlier deficits, double-charge holidays, alter locked days, or apply changes silently. A frontend-only localStorage demo does not meet the shared persistence requirement.
+
+Proceed with implementation and verification. Use synthetic fixtures explicitly labeled as demo. Report provider/configuration needs honestly; do not fabricate prices or forecasts. Update these context docs as decisions become concrete. Show the working year-planning workflow and summarize tests and remaining limitations.

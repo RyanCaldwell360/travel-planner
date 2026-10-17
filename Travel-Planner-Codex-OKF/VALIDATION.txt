@@ -1,0 +1,30 @@
+Travel Planner OKF handoff — validation record
+2026-10-17
+
+Target: Google Open Knowledge Format v0.2.
+Checks: UTF-8 Markdown; parseable YAML concept frontmatter; nonempty type;
+root version declaration; reserved index/log conventions; offset-aware generated
+timestamps; valid internal links; source footnote IDs; source paths.
+No human verification or Google certification is claimed.
+
+Content checks:
+- Confirmed requirements distinguished from tentative settings and proposals.
+- No actual PTO balances, exact trip dates, prices, school calendars, or bookings invented.
+- Eight-hour-day and ledger timing conventions identified as proposals.
+- Known personal context limited to information needed for this app interview.
+- Shared persistent collaboration is required, rather than browser-only storage.
+- Year selection, individual participation, holiday debit deduplication,
+  full-horizon feasibility, donor timing, mandatory holiday exclusions,
+  scenario isolation, and missing-data states covered.
+- Acceptance A03 checked: 40 + 11*8 - 48 - 48 - 40 = -8 hours.
+- Numerical fixtures are synthetic and explicitly labeled.
+
+Run: python3 validate_bundle.py (requires PyYAML).
+The validator checks this bundle's structural conventions; it is not a complete
+implementation of every optional OKF feature.
+
+This bundle contains requirements and proposed design, not application code.
+Flight/lodging, map, and weather providers remain implementation decisions.
+Exact employer inputs and the planning year must be configured by the users.
+
+Structural validation result: 17 concepts, 50 internal links, zero errors.

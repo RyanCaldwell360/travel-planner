@@ -1,0 +1,7 @@
+node_modules
+dist
+.data
+test-results
+public
+Travel-Planner-Codex-OKF
+package-lock.json
