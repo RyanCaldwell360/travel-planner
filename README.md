@@ -2,6 +2,12 @@
 
 A private, laptop-first shared travel journal for Ryan and Lily. The app is implemented in this repository; the supplied product context is preserved in [Travel-Planner-Codex-OKF/](Travel-Planner-Codex-OKF/index.md).
 
+## Free shared hosting
+
+The selected production path is **Cloudflare Workers Free + D1 Free + Cloudflare Access Free**, with one HTTPS address for both laptops. See [the free deployment guide](docs/FREE-DEPLOYMENT.md) for the exact GitHub build, durable database, private sign-in and backup steps. Hosting must remain free; do not provision paid Render resources. Cloudflare Access's free signup currently asks for payment details, though the provider says Free is not charged.
+
+The Cloudflare backend is implemented and locally tested. An owner still needs to create/connect a free Cloudflare account, authorize this GitHub repository, and configure the two sign-in emails. **It is not deployed yet.** GitHub source synchronization alone does not host the app. The Node server below remains the local development workflow.
+
 ## Run
 
 Use Node **24+** (the server uses built-in `node:sqlite`). From this directory:
@@ -20,7 +26,7 @@ npm run build
 npm start
 ```
 
-One server serves both the frontend and authenticated API. Both laptops must connect to **the same server**, not run separate local copies. Deploy one Node process behind an HTTPS reverse proxy, with a private persistent disk mounted at `DATA_DIR` and `COOKIE_SECURE=true`. Keep the service supervised and the volume backed up. There is no hosted deployment or public URL provisioned by this repository. For a private network installation, bind to its interface and use a TLS-capable reverse proxy. Do not expose the development server publicly.
+One server serves both the frontend and authenticated API. Both laptops must connect to **the same deployed backend**, not run separate local copies. The free Cloudflare path is documented above. If using the optional Node self-hosting mode instead, run one Node process behind an HTTPS reverse proxy, with a private persistent disk mounted at `DATA_DIR` and `COOKIE_SECURE=true`. Keep the service supervised and the volume backed up. There is no hosted deployment or public URL provisioned by this repository. For a private network installation, bind to its interface and use a TLS-capable reverse proxy. Do not expose the development server publicly.
 
 SQLite WAL is suitable for this small household, single-server workload. Network filesystems and multiple independently replicated SQLite files are not a supported deployment. Retain the database and WAL together; never treat a frontend export as the authentication/session backup.
 
@@ -69,7 +75,7 @@ npm run build            # strict TypeScript + production bundle
 npm run test:browser     # real Chromium, synthetic demo only, separate isolated server on 3100
 ```
 
-Browser tests use `/usr/bin/chromium` by default; set `CHROMIUM_PATH` if needed. They create a unique `/tmp/travel-planner-e2e-*` database, distinct synthetic passwords, two browser contexts, and screenshots in `test-results/`. No production data is touched. The current run passed **17 core/API tests and 2 browser workflows**, plus the production build and a consistent backup integrity check. Browse the [year overview](docs/screenshots/year-overview.png), [tradeoff preview](docs/screenshots/tradeoff-preview.png), and [destination map](docs/screenshots/explore-map.png). See [quality/implementation-status.md](Travel-Planner-Codex-OKF/quality/implementation-status.md) for exact coverage and limitations. A real external second laptop and hosted HTTPS deployment still require deployment validation; separate browser sessions and server-restart durability are verified locally.
+Browser tests use `/usr/bin/chromium` by default; set `CHROMIUM_PATH` if needed. They create a unique `/tmp/travel-planner-e2e-*` database, distinct synthetic passwords, two browser contexts, and screenshots in `test-results/`. No production data is touched. The initial run passed **17 core/API tests and 2 browser workflows**, plus the production build and a consistent backup integrity check. Browse the [year overview](docs/screenshots/year-overview.png), [tradeoff preview](docs/screenshots/tradeoff-preview.png), and [destination map](docs/screenshots/explore-map.png). See [quality/implementation-status.md](Travel-Planner-Codex-OKF/quality/implementation-status.md) for exact coverage and limitations. A real external second laptop and hosted HTTPS deployment still require deployment validation; separate browser sessions and server-restart durability are verified locally.
 
 ## Backup and recovery
 
@@ -79,4 +85,4 @@ For a password reset, set `NEW_PASSWORD` securely in an administrator's process 
 
 ## Remaining limits
 
-Live providers and deployment are not configured; six destinations only; no custom weekend schedules or prior-year usage bridge; no household-membership UI, real-time push, detailed itinerary, booking, calendar import, or automatic payroll sync. Tradeoffs search only unlocked trip boundaries with a bounded deterministic search, never non-trip obligations. They are examples, not a claim of global optimality. Travel-date edits require newly matching evidence, and crossing December explicitly scopes which year was checked. These limits are surfaced without replacing the core shared planner with browser-local storage.
+Live providers and deployment are not configured; six destinations only; no custom weekend schedules or prior-year usage bridge; no household-membership UI, real-time push, detailed itinerary, booking, calendar import, or automatic payroll sync. Tradeoffs run in a browser background worker and search only unlocked trip boundaries with a bounded deterministic search, never non-trip obligations. They are examples, not a claim of global optimality. Travel-date edits require newly matching evidence, and crossing December explicitly scopes which year was checked. These limits are surfaced without replacing the core shared planner with browser-local storage.

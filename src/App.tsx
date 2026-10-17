@@ -43,9 +43,11 @@ import { Comparison } from './components/Compare';
 import { DestinationMap } from './components/Map';
 type Mode = 'year' | 'explore' | 'compare' | 'setup';
 export default function App() {
-  const [session, setSession] = useState<{ setupRequired: boolean; user: string | null } | null>(
-      null,
-    ),
+  const [session, setSession] = useState<{
+      setupRequired: boolean;
+      user: string | null;
+      authMode?: 'access';
+    } | null>(null),
     [snap, setSnap] = useState<Snapshot | null>(null),
     [error, setError] = useState('');
   const [year, setYear] = useState(2027),
@@ -148,6 +150,7 @@ export default function App() {
     }
   }
   if (!session) return <div className="loading">{error || 'Opening your travel journal…'}</div>;
+  if (!session.user && session.authMode === 'access') return <AccessLogin />;
   if (!session.user)
     return (
       <Login
@@ -248,7 +251,11 @@ export default function App() {
           <button
             className="text-button"
             onClick={async () => {
-              await api('logout', {});
+              const result = await api('logout', {});
+              if (session.authMode === 'access') {
+                window.location.assign(result.logoutUrl);
+                return;
+              }
               setSession({ setupRequired: false, user: null });
               setSnap(null);
             }}
@@ -1186,6 +1193,47 @@ function Login({ setup, onLogin }: { setup: boolean; onLogin: (user: string) => 
           <Lock size={14} />
           Private by default. Saved on your shared server.
         </p>
+      </section>
+    </div>
+  );
+}
+
+function AccessLogin() {
+  return (
+    <div className="login-page">
+      <div className="login-story">
+        <a className="brand" href="/">
+          <Compass size={32} />
+          <span>
+            travel planner<small>RYAN & LILY</small>
+          </span>
+        </a>
+        <div>
+          <span className="eyebrow">YOUR PRIVATE SHARED JOURNAL</span>
+          <h1>
+            Good things
+            <br />
+            are on the
+            <br />
+            <em>horizon.</em>
+          </h1>
+          <p>A year of big adventures and little escapes.</p>
+        </div>
+      </div>
+      <section className="login-form">
+        <span className="eyebrow">JUST THE TWO OF YOU</span>
+        <h2>Your private journal awaits.</h2>
+        <p>
+          This hosted planner uses Cloudflare’s private email sign-in. Only Ryan and Lily’s
+          configured email addresses can open saved plans.
+        </p>
+        <p>
+          If the sign-in page did not appear, the owner needs to enable Access for all traffic on
+          this deployment. No household data is available without a verified sign-in.
+        </p>
+        <button className="primary" onClick={() => window.location.reload()}>
+          Try private sign-in <ArrowRight size={17} />
+        </button>
       </section>
     </div>
   );

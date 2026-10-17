@@ -197,3 +197,53 @@ test('empty real setup, selectable year, precise credits, paid/required holidays
   await expect(page.getByText('Unsaved stale appointment', { exact: true })).toHaveCount(0);
   await second.close();
 });
+
+test('free Cloudflare deployment: signed email identities share and edit a named tradeoff alternative', async ({
+  page,
+  browser,
+}) => {
+  test.setTimeout(90000);
+  await page.goto('http://127.0.0.1:3200/__fixture/login?person=ryan');
+  await page.getByRole('button', { name: 'Open synthetic demo journal' }).click();
+  await page.getByRole('button', { name: 'Add a trip', exact: true }).click();
+  let dialog = page.getByRole('dialog').last();
+  await dialog.getByLabel('Trip name').fill('Free-hosted February · demo');
+  await dialog.getByLabel('Ryan is traveling').check();
+  await dialog.getByLabel('Ryan arrives').fill('2027-02-15');
+  await dialog.getByLabel('Ryan departs').fill('2027-02-19');
+  await dialog.getByRole('button', { name: 'Preview year impact' }).click();
+  dialog = page.getByRole('dialog').last();
+  await dialog.getByRole('button', { name: 'Find flexible-trip tradeoffs' }).click();
+  await expect(dialog.getByRole('heading', { name: 'Option 1 · 2 flexible trips' })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Preview this alternative' }).first().click();
+  await dialog.getByLabel('Alternative name').fill('Shared from free deployment');
+  await dialog.getByRole('button', { name: 'Save named alternative' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const other = await browser.newContext();
+  const lily = await other.newPage();
+  await lily.goto('http://127.0.0.1:3200/__fixture/login?person=lily');
+  await lily
+    .getByLabel('Active scenario')
+    .selectOption({ label: 'Shared from free deployment · alternative' });
+  await expect(lily.getByRole('button', { name: /Free-hosted February/ }).first()).toBeVisible();
+  await lily.getByRole('button', { name: 'Add non-trip leave' }).click();
+  await lily.getByLabel('What is it for?').fill('Lily saved via D1 · demo');
+  await lily.getByLabel('Person').selectOption('lily');
+  await lily.getByLabel('Date', { exact: true }).fill('2027-04-01');
+  await lily.getByLabel('PTO hours', { exact: true }).fill('2');
+  await lily.getByRole('button', { name: 'Preview leave impact' }).click();
+  await lily
+    .getByRole('dialog')
+    .filter({ has: lily.getByRole('heading', { name: 'Review non-trip leave', exact: true }) })
+    .getByRole('button', { name: 'Save changes', exact: true })
+    .click();
+  await page.getByRole('button', { name: 'Reload shared plan', exact: true }).click();
+  await expect(page.getByText('Lily saved via D1 · demo', { exact: true })).toBeVisible();
+  await page.reload();
+  await page
+    .getByLabel('Active scenario')
+    .selectOption({ label: 'Shared from free deployment · alternative' });
+  await expect(page.getByText('Lily saved via D1 · demo', { exact: true })).toBeVisible();
+  await page.screenshot({ path: 'test-results/cloudflare-shared-year.png', fullPage: true });
+  await other.close();
+});

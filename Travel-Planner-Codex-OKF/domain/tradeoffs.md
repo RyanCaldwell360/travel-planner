@@ -52,3 +52,7 @@ State “No feasible adjustment found among the flexible trip days checked,” n
 ## Implemented search — 2026-10-17
 
 `src/core/tradeoffs.ts` performs bounded breadth-first boundary shortening and resimulates the full ledger for both participants on every accepted state. Whole trips, individual days (including zero-hour days), and actual-used days are protected from generated removal. Removing mandatory holiday presence frees zero PTO and cannot fund an option. The target trip is excluded from donors. No remote work is assumed. No non-trip obligation is searched. At most four examples are displayed, with explicit search/truncation scope. User actions first select a preview, then explicitly save it, usually as a named alternative preserving the original.
+
+## Free hosting execution — 2026-10-17
+
+The same deterministic search now runs in a dedicated browser worker (`src/core/tradeoff-worker.ts`), keeping the laptop UI responsive and avoiding Cloudflare Free's 10-ms server CPU budget. Suggestions still require preview and explicit save. The server validates the resulting scenario and enforces current locks/revisions. The Node API remains compatible, but the interface no longer needs a server search call. Browser tests exercise this path against both backends.

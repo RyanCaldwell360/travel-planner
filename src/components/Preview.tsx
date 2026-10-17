@@ -5,7 +5,7 @@ import { type Option, type Cut } from '../core/tradeoffs';
 import { Modal } from './Modal';
 import { Comparison } from './Compare';
 import { ForecastCards } from './Forecast';
-import { api } from '../api';
+import { runTradeoffs } from '../core/tradeoff-client';
 import { ArrowRight, Lock, GitBranch, AlertTriangle } from 'lucide-react';
 export function Preview({
   original,
@@ -47,11 +47,7 @@ export function Preview({
   async function find() {
     setBusy(true);
     try {
-      const r = await api<{ options: Option[]; checked: number; truncated: boolean }>('tradeoffs', {
-        state: draft,
-        scenarioId,
-        targetId,
-      });
+      const r = await runTradeoffs(draft, scenarioId, targetId);
       setOptions(r.options);
       setSearch(
         `${r.checked} candidate states checked. ${r.truncated ? 'Search bounded; these are examples, not exhaustive.' : 'All reachable boundary cuts in this search checked.'} Only flexible trip boundaries are considered; non-trip leave and mandatory holidays are excluded.`,

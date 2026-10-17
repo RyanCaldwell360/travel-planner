@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { destination } from '../src/core/destinations';
 import { type Trip } from '../src/core/model';
-import { type openStore } from './store';
 export interface EvidenceItem {
   status: 'available' | 'unavailable';
   label: string;
@@ -273,19 +272,19 @@ export const openMeteoAdapter: WeatherAdapter = {
     }
   },
 };
+export interface EvidenceCache {
+  readEvidence(key: string): Promise<Evidence | undefined>;
+  saveEvidence(key: string, result: Evidence): Promise<void>;
+}
 export async function getDiscovery(
-  store: ReturnType<typeof openStore>,
+  store: EvidenceCache,
   trip: Trip,
   travel: TravelAdapter = amadeusAdapter,
   weather: WeatherAdapter = openMeteoAdapter,
 ): Promise<Evidence> {
   const key = fingerprint(trip);
-  const cached = store.db.prepare('SELECT result FROM evidence WHERE fingerprint=?').get(key) as
-    { result: string } | undefined;
-  if (cached) {
-    const result = JSON.parse(cached.result) as Evidence;
-    if (Date.parse(result.expiresAt) > Date.now()) return { ...result, cached: true };
-  }
+  const cached = await store.readEvidence(key);
+  if (cached && Date.parse(cached.expiresAt) > Date.now()) return { ...cached, cached: true };
   const [flights, lodging, context] = await Promise.all([
     travel.flights(trip),
     travel.lodging(trip),
@@ -300,8 +299,6 @@ export async function getDiscovery(
     lodging,
     weather: context,
   };
-  store.db
-    .prepare('INSERT OR REPLACE INTO evidence VALUES (?,?,?)')
-    .run(key, JSON.stringify(result), retrievedAt);
+  await store.saveEvidence(key, result);
   return result;
 }

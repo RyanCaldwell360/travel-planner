@@ -47,3 +47,11 @@ Test fixtures and browser credentials are synthetic and never initialize the rea
 - No real-time push, self-service password email reset, multi-household tenancy or general membership UI.
 
 Generated context remains draft and is not labeled human-verified.
+
+# Free deployment adapter verification — 2026-10-17
+
+The later free-only hosting requirement is now implemented as a separate Worker/D1/Access deployment target. Current verification is **19 passing core/API/runtime tests and 3 passing Chromium workflows**. Added checks exercise forged, expired, wrong-issuer/wrong-audience JWTs; unauthorized signed identities; missing/duplicate household identity configuration; actual D1 restart persistence; atomic competing updates and matching history; lock enforcement; restoration; oversized-state rejection; and the complete production Worker bundle inside workerd against real signed synthetic identities/JWKS.
+
+The third browser workflow runs that bundle and D1 engine, saves February with two donor cuts as a named alternative, opens it as Lily in an independent browser, saves her leave, and sees it as Ryan after reload. The test-only signed-login bridge is not deployed. Browser test servers explicitly suppress external Amadeus credentials so a test never spends real provider API usage. Provider failures remain visible.
+
+Strict TypeScript/build and Wrangler deployment dry run pass. Native Workers compatibility is pinned to the locally tested 2026-07-30 behavior. Actual Cloudflare account sign-in, Access policies, live URL, production CPU usage, resource quotas and real-laptop validation are **still blocked on the owner's account setup**. The free plan's limits are not a production performance guarantee. No paid Render configuration or hosting resource was created. See `docs/FREE-DEPLOYMENT.md` in the repository root for official sources and required owner actions.

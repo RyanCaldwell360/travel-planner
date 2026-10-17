@@ -1,3 +1,4 @@
+import type { Evidence } from './providers';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, existsSync, writeFileSync, chmodSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -96,5 +97,17 @@ export function openStore(dir: string, providedToken?: string) {
       throw e;
     }
   }
-  return { db, read, write, setup, setupRequired, setupToken, dir };
+  async function readEvidence(key: string) {
+    const r = db.prepare('SELECT result FROM evidence WHERE fingerprint=?').get(key) as
+      { result: string } | undefined;
+    return r ? (JSON.parse(r.result) as Evidence) : undefined;
+  }
+  async function saveEvidence(key: string, result: Evidence) {
+    db.prepare('INSERT OR REPLACE INTO evidence VALUES (?,?,?)').run(
+      key,
+      JSON.stringify(result),
+      result.retrievedAt,
+    );
+  }
+  return { db, read, write, setup, setupRequired, setupToken, dir, readEvidence, saveEvidence };
 }

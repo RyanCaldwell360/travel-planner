@@ -19,11 +19,25 @@ export default defineConfig({
     },
     trace: 'retain-on-failure',
   },
-  webServer: {
-    command: 'npm start',
-    url: 'http://127.0.0.1:3100',
-    reuseExistingServer: false,
-    env: { PORT: '3100', DATA_DIR: dir, HOST: '127.0.0.1' },
-    timeout: 30000,
-  },
+  webServer: [
+    {
+      command: 'npm start',
+      url: 'http://127.0.0.1:3100',
+      reuseExistingServer: false,
+      env: {
+        PORT: '3100',
+        DATA_DIR: dir,
+        HOST: '127.0.0.1',
+        AMADEUS_CLIENT_ID: '',
+        AMADEUS_CLIENT_SECRET: '',
+      },
+      timeout: 30000,
+    },
+    {
+      command: 'tsx tests/cloudflare-browser-server.ts',
+      url: 'http://127.0.0.1:3200/healthz',
+      reuseExistingServer: false,
+      timeout: 30000,
+    },
+  ],
 });
